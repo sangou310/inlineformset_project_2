@@ -1,0 +1,34 @@
+{% extends 'jutyu/_base.html' %}
+
+{% block content %}
+    <h1>受注一覧</h1>
+    <a href="{% url 'add_jutyu' %}">+ 受注入力</a>
+    <table class="table table-sm">
+        <thead>
+        <tr>
+            <th>日付</th>
+            <th>顧客</th>
+            <th>部品</th>
+            <th>受注数量</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for jutyuhead in jutyuhead_list %}
+            {% for jutyudetail in jutyuhead.jutyudetail_set.all %}
+                <tr>
+                    {% if forloop.first %}
+                        <td>{{ jutyuhead.jutyu_date|date:'Y-m-d' }}</td>
+                        <td>{{ jutyuhead.customer }}</td>
+                    {% else %}
+                        <th></th>
+                        <th></th>
+                    {% endif %}
+                    <td>{{ jutyudetail.part }}</td>
+                    <td>{{ jutyudetail.quantity }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+    <p>{{ jutyuhead_list.count }} 件</p>
+{% endblock content %}

@@ -1,0 +1,64 @@
+{% extends 'jutyu/_base.html' %}
+
+{% block content %}
+    <h1>受注入力</h1>
+
+    <form action="" method="POST">
+        {{ form }}
+
+        {{ formset.management_form }}
+        <table class="table table-borderless table-sm mt-3" id="detail-table">
+            <thead>
+            <tr>
+                <th>部品</th>
+                <th>受注数量</th>
+                <th>削除</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for detail_form in formset %}
+                <tr>
+                    <td>{{ detail_form.part }}</td>
+                    <td>{{ detail_form.quantity }}</td>
+                    <td class="align-middle">{{ detail_form.DELETE }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% csrf_token %}
+        <div class="d-flex">
+            <div class="mr-auto"><button class="btn btn-outline-primary" type="button" id="addForm">行を追加</button></div>
+            <div class="ml-auto"><button class="btn btn-primary" type="submit">保存</button></div>
+        </div>
+    </form>
+{% endblock content %}
+
+{% block extrajs %}
+    <script>
+        jQuery(function ($) {
+            $("button#addForm").on("click", function () {
+                // インラインフォームセットに含まれるフォームの数を取得（＝TOTAL_FORMSのvalueを取得）
+                const totalManageElement = $("input#id_jutyudetail_set-TOTAL_FORMS");
+                const currentJutyuDetailCount = parseInt(totalManageElement.val());
+
+                // 最初の行をコピーして最下行に追加
+                $("table#detail-table tbody tr:first-child").clone().appendTo("table#detail-table tbody");
+                // 入力内容をクリアする
+                $("table#detail-table tbody tr:last-child").find("select, input").each(function () {
+                    // selectなのかinputなのか区別せずとにかくクリア（手抜き）
+                    $(this).val("");
+                    $(this).prop("selected", false);  // なくても選択解除されるが。。。
+                    $(this).prop("checked", false);
+                    // id, name を書き換える  ex. id_jutyudetail_set-0-part → id_jutyudetail_set-1-part
+                    var thisName = $(this).attr("name");
+                    thisName = thisName.replace("-0-", "-" + currentJutyuDetailCount + "-");
+                    $(this).attr("name", thisName);
+                    $(this).attr("id", "id_" + thisName);
+                });
+                // TOTAL_FORMSを1増やす
+                $("input#id_jutyudetail_set-TOTAL_FORMS").val(currentJutyuDetailCount + 1);
+            });
+        });
+    </script>
+{% endblock extrajs %}
